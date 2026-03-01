@@ -1,0 +1,32 @@
+\section*{Refined Publication Summary}
+
+\subsection*{Main contribution}
+The paper introduces a greedy outlier-detection algorithm for planar point sets based on area-weighted convex hull peeling. At each iteration, the algorithm removes the hull point whose deletion causes the largest decrease in convex hull area. The first $k$ removals are interpreted as the $k$ outliers.
+
+\subsection*{Why this is useful}
+The method is designed as a practical heuristic for exact area-based outlier detection. Exact algorithms optimize the area after removing a set of $k$ points simultaneously, but their running times are too high for many realistic input sizes. The weighted peeling approach preserves the same geometric motivation while reducing the running time to near-linear.
+
+\subsection*{Algorithmic idea}
+The algorithm maintains the two outer convex layers together with a dynamic structure for the remaining interior points. Sensitivities are stored in a priority queue, and each peel triggers only local structural repairs:
+\begin{enumerate}
+    \item remove the hull point of maximum sensitivity,
+    \item restore the first and second layers,
+    \item update the sensitivities of affected neighboring hull points.
+\end{enumerate}
+The nontrivial insight is that these local updates admit a global amortized bound.
+
+\subsection*{Technical insight}
+Even though a single peel can cause many points to become newly relevant to another hull point, the total number of such activations across the entire process is linear in $n$. Combined with logarithmic-time geometric queries, this yields an $O(n \log n)$ algorithm using $O(n)$ space.
+
+\subsection*{Position relative to prior work}
+The method differs from:
+\begin{itemize}
+    \item exact $k$-removal algorithms, which solve a stronger optimization problem but are substantially slower,
+    \item distance-from-mean peeling heuristics, which use a different objective and require linear work per peel,
+    \item and convex-layer depth approaches, which peel whole layers rather than ranking points by area impact.
+\end{itemize}
+The paper therefore positions weighted peeling as the first practical area-based heuristic with strong running time guarantees.
+
+\subsection*{Limits and scope}
+The algorithm is greedy rather than globally optimal. In particular, nearby outliers can mask one another, so the best sequence of individual peels need not match the best joint removal of $k$ points. The contribution is therefore not exact optimality, but a fast and geometrically meaningful heuristic that scales well in practice.
+
