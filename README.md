@@ -1,2 +1,1 @@
-# Fast-Area-Weighted-Peeling-of-Convex-Hulls-for-Outlier-Detection
-Implementation of the outlier detection algorithm based on the convex-hull area in paper 'Fast Area-Weighted Peeling of Convex Hulls for Outlier Detection' by Vinesh Shridhar and Rolf Svenning,published at CCCG24. 
+Implementation of the area-weighted convex hull peeling algorithm for outlier detection, as presented by V. Shridhar and R. Svenning at CCCG 2024.
