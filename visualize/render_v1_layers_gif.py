@@ -19,7 +19,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from PIL import Image
 
-from algorithms_and_data_structures.list_convex_layer import ListConvexLayer
+from algorithms_and_data_structures.convex_hull import andrews_monotone_chain
+from algorithms_and_data_structures.convex_layers import build_convex_layers
 from algorithms_and_data_structures.shoelace_formula import polygon_area
 from v1.oracle import v1_area_weighted_peeling
 
@@ -64,8 +65,10 @@ def _compute_states(points: Sequence[Point]) -> tuple[List[dict], List[float]]:
     hull_areas: List[float] = []
 
     while True:
-        layer_manager = ListConvexLayer.from_points(active_points)
-        layers = [[tuple(point) for point in layer] for layer in layer_manager.layers]
+        layers = [
+            [tuple(point) for point in layer]
+            for layer in build_convex_layers(active_points, andrews_monotone_chain)
+        ]
         outer_hull = layers[0] if layers else list(active_points)
         hull_areas.append(polygon_area(outer_hull))
         states.append(

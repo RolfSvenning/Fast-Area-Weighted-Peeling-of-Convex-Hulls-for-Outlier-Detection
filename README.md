@@ -31,6 +31,7 @@ The repository currently starts with the `V1` brute-force oracle baseline. This 
 
 - `agent/`
   Operational tooling and disposable agent outputs. This contains the gatekeeper scripts in `agent/scripts/` and temporary verification artifacts in `agent/temp_files/`.
+  `agent/SAFE_COMMITS.md` records the current safe rollback anchors.
 
 - `testcases/v1_gold/`
   Fixed golden cases for the `V1` oracle. These are the source of truth for verification once generated.
@@ -48,7 +49,7 @@ The repository currently starts with the `V1` brute-force oracle baseline. This 
   `V1` brute-force oracle implementation. This contains the baseline peeling logic and the fixed-case generator used to create goldens.
 
 - `v2/`
-  The first layered implementation path. It now restores only the affected suffix of layers after a peel and is verified both against the `V1` peel trace and a `V2` suite that records `layers_after_peel`.
+  The first layered implementation path. It now uses a linked-list-backed layer manager, restores only the affected suffix of layers after a peel, and is verified both against the `V1` peel trace and a `V2` suite that records `layers_after_peel`. The earlier list-backed manager is kept inside `v2/` as a reference.
 
 - `visualize/`
   Visualization tooling for rendering a fixed `V1` testcase as a GIF plus an HTML step-through viewer. A checked-in example bundle lives under `visualize/example/`.

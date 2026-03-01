@@ -1,4 +1,4 @@
-"""Naive V2 layered implementation built around a list-backed convex layer manager."""
+"""V2 layered implementation built around the linked-list-backed layer manager."""
 
 from __future__ import annotations
 
@@ -8,11 +8,11 @@ from algorithms_and_data_structures.convex_hull import (
     ConvexHullAlgorithm,
     andrews_monotone_chain,
 )
-from algorithms_and_data_structures.list_convex_layer import ListConvexLayer
 from algorithms_and_data_structures.shoelace_formula import polygon_area
 from geometry.constants import MIN_AREA_DECREASE_EPSILON
 from geometry.core import Point
 from v1.oracle import AmbiguousPeelError
+from v2.linked_convex_layer import LinkedConvexLayer
 
 
 def v2_layered_area_weighted_peeling(
@@ -21,7 +21,7 @@ def v2_layered_area_weighted_peeling(
     min_area_decrease_epsilon: float = MIN_AREA_DECREASE_EPSILON,
 ) -> Dict[str, object]:
     hull_algorithm = convex_hull_algorithm or andrews_monotone_chain
-    layer_manager = ListConvexLayer.from_points(points, hull_algorithm)
+    layer_manager = LinkedConvexLayer.from_points(points, hull_algorithm)
     peel_order: List[Point] = []
     area_decreases: List[float] = []
     hulls: List[List[Point]] = []
@@ -58,7 +58,7 @@ def v2_layered_area_weighted_peeling(
         peel_order.append(best_vertex)
         area_decreases.append(best_decrease)
         layer_manager.remove_point(best_vertex)
-        layers_after_peel.append([list(layer) for layer in layer_manager.layers])
+        layers_after_peel.append([layer.to_list() for layer in layer_manager.layers])
 
     return {
         "peel_order": peel_order,

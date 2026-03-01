@@ -1,14 +1,19 @@
-"""List-backed convex layer manager for the V2 layered architecture."""
+"""List-backed reference convex layer manager for the V2 layered architecture."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Iterable, List, Sequence, Tuple
 
-from .convex_hull import ConvexHullAlgorithm, andrews_monotone_chain
-from .convex_layers import build_convex_layers, canonicalize_layer, remove_points
-from geometry.core import Point, points_equal
 from geometry.constants import ORIENTATION_EPSILON
+from geometry.core import Point, points_equal
+
+from algorithms_and_data_structures.convex_hull import ConvexHullAlgorithm, andrews_monotone_chain
+from algorithms_and_data_structures.convex_layers import (
+    build_convex_layers,
+    canonicalize_layer,
+    remove_points,
+)
 
 
 def _same_points(first: Sequence[Point], second: Sequence[Point]) -> bool:
@@ -22,9 +27,11 @@ def _find_point_index(points: Sequence[Point], target: Point) -> int:
         if points_equal(point, target, ORIENTATION_EPSILON):
             return index
     raise ValueError(f"Point {target} was not found.")
+
+
 @dataclass
 class ListConvexLayer:
-    """List-backed layered hull manager with local adjacent-layer restoration."""
+    """List-backed layered hull manager kept as the golden V2 reference."""
 
     active_points: List[Point]
     layers: List[List[Point]]
