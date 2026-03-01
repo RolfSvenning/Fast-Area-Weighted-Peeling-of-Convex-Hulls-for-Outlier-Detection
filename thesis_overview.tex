@@ -1,0 +1,380 @@
+\documentclass[11pt,a4paper,twoside,openright,oldfontcommands]{memoir} % oneside to not have blanks between chapters
+
+% use 'final' to produce the camera ready version.
+% use 'draft' to produce line overflows etc.
+
+% README:
+%
+% This thesis template uses the memoir document class. Memoir is a great
+% class with lots of nice features. Please read the memoir manual and
+% familiarize yourself with its basics.
+%
+% For example, use the \Sref (section ref), \fref (figure ref)
+% etc. to reference labels. This will yield uniform naming.
+%
+% Also, use \includeonly to selectively include only parts of the thesis.
+% \includeonly{cover,frontmatter,intro,paper1}
+% \includeonly{paper1}
+
+% The natbib package offers a nice set of citation tools.
+% Use \citep for parenthesized citations and \citet for inlined citations, ie, Author [X].
+% See the natbib manual for more options and styles.
+\usepackage[numbers,square,sort&compress]{natbib}
+
+% Use American hyphenation.
+\usepackage[american]{babel}
+
+% Use UTF8 for source text.
+\usepackage[utf8]{inputenc} % another option is [latin1]
+\usepackage[T1]{fontenc}
+
+% Font
+\usepackage{mathptmx}
+\renewcommand*\sfdefault{lmss}
+\renewcommand*\ttdefault{txtt}
+\DeclareMathAlphabet{\mathcal}{OMS}{cmsy}{m}{n} % fix mathcal O
+
+\usepackage{microtype}
+
+% You can just remove this package, it simply generates some sample text.
+\usepackage{lipsum}
+
+% LOAD YOUR PACKAGES HERE! (BEFORE THE HYPERREF PACKAGE)
+\usepackage{latexsym,amsmath,amssymb, mathtools}
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{epstopdf} 
+\usepackage{xspace}
+\usepackage{tikz}
+\usetikzlibrary{calc,math,decorations.pathreplacing,positioning}
+\usetikzlibrary{patterns.meta, decorations.pathmorphing} % for merging full persistence 
+\usepackage{forest, subcaption} % for col pred figure
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e} %pseudocode
+\usepackage{wasysym} % pentagon symbol
+\usepackage{enumitem} %for \begin{itemize}[label={}] to remove bullets
+\usepackage{siunitx} % for table with scientific units
+\sisetup{
+  output-exponent-marker=\text{e},
+  detect-weight=true,
+  detect-family=true,
+  table-format=7.0,
+  table-align-text-post=false
+}
+\usepackage{pdfpages} % to include PDFS
+
+% #################################################### < --- --- ---
+%   Uncomment the line below for the full version  ### < --- --- ---
+\def\FullVersion{} %                               ### < --- --- ---
+% #################################################### < --- --- ---
+
+
+% Theorem environments in memoir with global numbering
+\newtheorem{theorem}{Theorem}         % Global numbering
+\newtheorem{lemma}[theorem]{Lemma}    % Shares counter with theorem
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+
+
+% My shorthands
+\newcommand{\IO}[0]{I/O\xspace}
+\newcommand{\IOs}[0]{I/Os\xspace}
+\newcommand{\sort}[1]{Sort\!\parentheses{#1}}
+\newcommand{\scan}[1]{Scan\!\parentheses{#1}}
+\newcommand{\logB}{\log_{B}}
+\newcommand{\logMB}{\log_{M/B}}
+\newcommand{\Dheap}{$\Delta$-heap }
+\newcommand{\Dheaps}{$\Delta$-heaps }
+\newcommand{\Beps}{B^\epsilon}
+\newcommand{\BepsTree}{$\Beps$-tree\xspace} % \nobreakdash
+\newcommand{\BepsTrees}{$\Beps$-trees\xspace} % \nobreakdash
+\newcommand{\Nbar}{\overline{N}}
+\newcommand{\versionSet}[1]{\mathcal{S}_{#1}}
+\newcommand{\Nv}{N_v}
+\newcommand{\versionCurrent}{v_c}
+\newcommand{\Vtree}{T}
+\newcommand{\Vlist}{L}
+\newcommand{\Vlocallist}{\Vlist^r}
+\newcommand{\Succ}[1]{succ\!\parentheses{#1}}
+\newcommand{\Wheur}{W_{BSZ}}
+\newcommand{\Wrec}{W_{REC}}
+\newcommand{\Cpp}{C\texttt{++} }
+
+% CONVEX HULL PEELING
+% Geometry
+\newcommand{\Tri}[3]{\triangle #1#2#3}
+\newcommand{\TriS}[1]{\triangle #1}
+\newcommand{\sens}[1]{\sigma\!\parentheses{#1}}
+\newcommand{\poly}[1]{\pentagon\!\parentheses{#1}}
+
+% Operations
+\newcommand{\Operation}[1]{\textup{\textsc{#1}}\xspace}
+\newcommand{\Insert}{\Operation{Insert}}
+\newcommand{\Search}{\Operation{Search}}
+\newcommand{\Range}{\Operation{Range}}
+\newcommand{\DeleteMin}{\Operation{DeleteMin}}
+\newcommand{\Delete}{\Operation{Delete}}
+\newcommand{\MakeHeap}{\Operation{Make-Heap}}
+\newcommand{\DecreaseKey}{\Operation{Decrease-Key}}
+\newcommand{\Meld}{\Operation{Meld}}
+
+
+% BRACKETS
+\newcommand{\parentheses}[1]{\left( #1 \right)}
+\newcommand{\curlyBrackets}[1]{\left\{ #1 \right\}}
+%\newcommand{\pair}[1]{\left\langle #1 \right\rangle}
+\newcommand{\size}[1]{\left\lvert #1 \right\rvert}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\myMax}[2]{\max\!\curlyBrackets{#1 \,|\, #2}}
+\newcommand{\Oh}[1]{\mathcal{O}\!\parentheses{#1}}
+%\newcommand{\OhA}[1]{\mathcal{O}_A\!\parentheses{#1}}
+\newcommand{\OhMega}[1]{\Omega\!\parentheses{#1}}
+\newcommand{\OhTheta}[1]{\Theta\!\parentheses{#1}}
+
+
+
+
+% ANSV tikz
+% Define colors
+\definecolor{g}{RGB}{0, 113, 51} % green
+\definecolor{o}{RGB}{245, 145, 0} % orange
+
+% Define the new counter
+\newcounter{len}
+
+\newcommand{\blockCol}[2]{
+    \begin{scope}[shift={(#1)}]
+        \setcounter{len}{0}
+        \foreach \num/\col in {#2}{
+            \stepcounter{len}
+        }
+        \foreach \num/\col [count=\x] in {#2}{ 
+            \draw[densely dotted] (\x,0) -- (\x,1);
+            \node[text=\col] at (\x-0.5,0.5) {\num}; 
+        }
+        \draw[line width=0.25mm] (0,0) rectangle (\value{len},1);
+
+    \end{scope}
+}
+
+
+\newcommand{\block}[2]{
+    \begin{scope}[shift={(#1)}]
+        \setcounter{len}{0}
+        \foreach \num/\col in {#2}{
+            \stepcounter{len}
+        }
+        \foreach \num [count=\x] in {#2}{ 
+            \draw[densely dotted] (\x,0) -- (\x,1);
+            \node at (\x-0.5,0.5) {\num}; 
+        }
+        \draw[line width=0.25mm] (0,0) rectangle (\value{len},1);
+
+    \end{scope}
+}
+
+\tikzset{
+    myArrow/.style={
+        -stealth, % Arrow style
+        o, 
+        line width = 0.25mm,
+        tips = proper,
+        rounded corners=5pt
+    },
+    myBrace/.style args={#1}{
+        decorate,
+        decoration={brace, amplitude=5pt, #1, raise=0.5mm}
+    }, 
+    myBrace/.default={mirror}, % Set default to mirror
+    myNode/.style args={#1}{
+        midway,
+        yshift=#1
+    },
+    myNode/.default={-1.5em}
+}
+
+% Figure macros for merging (full persistence)
+\tikzdeclarepattern{
+  name=mylines,
+  parameters={
+      \pgfkeysvalueof{/pgf/pattern keys/size},
+      \pgfkeysvalueof{/pgf/pattern keys/angle},
+      \pgfkeysvalueof{/pgf/pattern keys/line width},
+  },
+  bounding box={
+    (0,-0.5*\pgfkeysvalueof{/pgf/pattern keys/line width}) and
+    (\pgfkeysvalueof{/pgf/pattern keys/size},
+     0.5*\pgfkeysvalueof{/pgf/pattern keys/line width})},
+  tile size={(\pgfkeysvalueof{/pgf/pattern keys/size},
+              \pgfkeysvalueof{/pgf/pattern keys/size})},
+  tile transformation={rotate=\pgfkeysvalueof{/pgf/pattern keys/angle}},
+  defaults={
+    size/.initial=5pt,
+    angle/.initial=45,
+    line width/.initial=.4pt,
+  },
+  code={
+      \draw [line width=\pgfkeysvalueof{/pgf/pattern keys/line width}]
+        (0,0) -- (\pgfkeysvalueof{/pgf/pattern keys/size},0);
+  },
+}
+
+\newcommand{\RECTANGLE}[4]{% #1 lower left, #2 width, #3 height, #4 text
+  \begin{scope}[shift={(#1)}]
+    \draw[very thick] (0,0) rectangle (#2,#3);
+    \ifstrempty{#4} {} {
+        \node (corner) at (#2,0) {};
+        \node[inner sep=1, align=left, above left=-.5pt and -.5pt of corner, fill=white] {#4};
+        %\node[inner sep=0, align=left, label={above left: #4}] at (#2,0) {};
+    }
+  \end{scope}}
+  
+\newcommand{\DASHEDREC}[3]{% #1 lower left, #2 width, #3 height
+  \begin{scope}[shift={(.12,.12)}]
+    \begin{scope}[shift={(#1)}]
+        \fill[pattern={mylines[size=4pt,line width=.6pt,angle=45]}, pattern color=gray] (0,0) rectangle (#2-.24,#3-.24);
+    \end{scope}
+  \end{scope}}
+
+% Figure (partial persistence geometric view)
+\newcommand{\CLOSEDRECTANGLE}[4]{% #1 lower left, #2 width, #3 height, #4 text
+  \begin{scope}[shift={(#1)}]
+    \draw[very thick] (0,0) rectangle (#2,#3);
+    \ifstrempty{#4} {} {
+        \node (corner) at (#2,0) {};
+        \node[inner sep=0, align=left, above left=-.5pt and -.5pt of corner, fill=white] {#4};
+    }
+  \end{scope}}
+
+\newcommand{\OPENRECTANGLE}[4]{% #1 lower left, #2 width, #3 height, #4 text
+  \begin{scope}[shift={(#1)}]
+    \draw[white, fill=gray!10] (0,0) rectangle (#2,#3);
+    \draw[very thick] (0,#3) -- (0,0) -- (#2,0) -- (#2,#3);
+    \ifstrempty{#4} {} {
+        \node (corner) at (#2,0) {};
+        \node[inner sep=0, align=left, above left=-.5pt and -.5pt of corner, fill=none] {#4};
+    }
+  \end{scope}}
+
+\newcommand{\OPENSEGMENTS}[3][black]{%
+  \foreach \x/\ystart in {#3} {
+    \draw[#1] (\x,\ystart) -- (\x,#2);
+    \draw[#1, fill=#1] (\x,\ystart) circle (0.075);
+  }}
+
+\newcommand{\BUFFEREDOPENSEGMENTS}[0]{\OPENSEGMENTS[lightgray]}
+
+\newcommand{\CLOSEDSEGMENTS}[2][black]{
+  \foreach \x/\ystart/\yend in {#2} {
+    \draw[#1] (\x,\ystart) -- (\x,\yend-0.075);
+    \draw[#1, fill=#1] (\x,\ystart) circle (0.075);
+    \draw[#1, fill=none] (\x,\yend) circle (0.075);
+  }}
+
+\newcommand{\BUFFEREDCLOSEDSEGMENTS}[0]{\CLOSEDSEGMENTS[lightgray]}
+
+\newcommand{\FADESEGMENTS}[1]{
+  \foreach \x/\ystart/\yend in {#1} {
+    \coordinate (A) at (\x,\ystart);
+    \tikzmath{\z = \ystart + ((\yend - \ystart) / 4 * 3);}
+    \coordinate (B) at (\x,\z);
+    \foreach \i in {0, 1, ..., 9} {
+      \tikzmath{int \j; \j = \i + 1; \k = (\i + .5) / 10 * 100;}
+      \draw[color=black!\k!lightgray] ($(B)!\i/10!(A)$) -- ($(B)!\j/10!(A)$);
+    }
+    \draw[lightgray] (B) -- (\x,\yend-0.075);
+    \draw[black, fill=black] (A) circle (0.075);
+    \draw[lightgray, fill=none] (\x,\yend) circle (0.075);
+  }}
+
+% Functionap persistence figure settings
+\newcommand{\figscale}{0.69}
+\newcommand{\myssep}{7}
+\newcommand{\myisep}{2}
+\newcommand{\mylsep}{7}
+\newcommand{\myminsize}{4}
+
+
+
+% Generally load hyperref last (except if using cleverref for example)
+\usepackage[bookmarks,pagebackref]{hyperref}
+
+% A simple alternative to e.g. the todonotes package.
+% \newcommand{\todo}[1]{{\color[rgb]{.5,0,0}\textbf{$\blacktriangleright$#1$\blacktriangleleft$}}}
+\newcommand{\todo}[1]{} % disables all TODOs
+
+
+\title{Scalable Algorithms \\ and Persistent Data Structures \\ using Geometric Techniques }
+%\title{Scalable and Cache-Aware \\ Algorithms and Persistence \\ using Geometric Techniques }
+%\title{Scalable Algorithms and Persistent Data Structure}
+% \title{Big Data Everywhere All at Once}
+% Persistent data structures, parallelism, geometry and external memory
+% Scalable Persistent Data Structures 
+\author{Rolf Svenning}
+\date{\today}
+
+\begin{document}
+
+\pagenumbering{roman} 
+\include{cover}
+
+\frontmatter
+\include{frontmatter}
+
+\cleardoublepage
+%\setcounter{tocdepth}{2}
+\tableofcontents
+\cleardoublepage
+
+\mainmatter
+\pagenumbering{arabic}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part I - the overview chapters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\part{Overview}
+\label{part:overview}
+
+\include{intro}
+
+\include{My_Chapters/pers}
+
+\include{My_Chapters/par}
+
+\include{My_Chapters/geom}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Part II - the publication chapters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\part{Publications}
+\label{part:publications}
+
+\include{papers/priority_queue} %1
+\include{papers/part_pers}      %2
+\include{papers/full_pers}      %3
+\include{papers/functional}     %4
+\include{papers/art_gallery}    %5
+\include{papers/peeling}        %6
+\include{papers/ansv}           %7
+
+
+\backmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \part{Appendix}
+% \appendix
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\cleardoublepage
+\bibliographystyle{plainnat} 
+\bibliography{refs}
+
+\end{document}
