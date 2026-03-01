@@ -44,6 +44,14 @@ def compare_json(gold_file: Path, test_file: Path) -> List[str]:
     _compare_values(gold["expected"]["peel_order"], test.get("peel_order"), "peel_order", diffs)
     _compare_values(gold["expected"]["area_decreases"], test.get("area_decreases"), "area_decreases", diffs)
     _compare_values(gold["expected"]["hulls"], test.get("hulls"), "hulls", diffs)
+    _compare_values(gold["expected"]["final_points"], test.get("final_points"), "final_points", diffs)
+    if "layers_after_peel" in gold["expected"]:
+        _compare_values(
+            gold["expected"]["layers_after_peel"],
+            test.get("layers_after_peel"),
+            "layers_after_peel",
+            diffs,
+        )
     return diffs
 
 

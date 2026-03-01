@@ -59,6 +59,7 @@ Required status format:
 - fixed `V1` suite: `1000` cases
 - `900` cases with `25` points
 - `100` cases with `100` points
+- `V2` branch started with a naive layered implementation that currently matches the frozen `V1` suite
 - gatekeeper scripts live in `agent/scripts/`
 - temporary verification outputs live in `agent/temp_files/`
 

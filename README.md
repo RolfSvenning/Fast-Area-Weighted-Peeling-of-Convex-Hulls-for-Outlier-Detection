@@ -12,6 +12,7 @@ The repository currently starts with the `V1` brute-force oracle baseline. This 
 ├── publications/
 ├── testcases/
 ├── v1/
+├── v2/
 ├── visualize/
 ├── main.py
 └── README.md
@@ -34,11 +35,20 @@ The repository currently starts with the `V1` brute-force oracle baseline. This 
 - `testcases/v1_gold/`
   Fixed golden cases for the `V1` oracle. These are the source of truth for verification once generated.
 
+- `testcases/v2_gold/`
+  Fixed golden cases for the layered `V2` path. These reuse the same inputs as `v1_gold` but additionally freeze the convex-layer decomposition after each peel.
+
 - `testcases/v1_gold_manifest.json`
   Hash manifest and audit summary for the frozen `V1` suite. This is used to certify that the current golden files are stable and unchanged.
 
+- `testcases/v2_gold_manifest.json`
+  Hash manifest and audit summary for the frozen `V2` suite. This certifies the additional `layers_after_peel` snapshots used by the layered implementation.
+
 - `v1/`
   `V1` brute-force oracle implementation. This contains the baseline peeling logic and the fixed-case generator used to create goldens.
+
+- `v2/`
+  The first layered implementation path. It now restores only the affected suffix of layers after a peel and is verified both against the `V1` peel trace and a `V2` suite that records `layers_after_peel`.
 
 - `visualize/`
   Visualization tooling for rendering a fixed `V1` testcase as a GIF plus an HTML step-through viewer. A checked-in example bundle lives under `visualize/example/`.
@@ -82,10 +92,22 @@ The main verification entrypoint is:
 bash agent/scripts/verify_integrity.sh v1 v1
 ```
 
+Verify the layered implementation against the `V2` layer-snapshot suite:
+
+```bash
+bash agent/scripts/verify_integrity.sh v2 v2
+```
+
 Audit and hash the frozen suite:
 
 ```bash
 PYTHONPATH=. python3 agent/scripts/audit_v1_suite.py
+```
+
+Audit and hash the `V2` layer-snapshot suite:
+
+```bash
+PYTHONPATH=. python3 agent/scripts/audit_v2_suite.py
 ```
 
 Cross-check the oracle under both convex hull algorithms:
