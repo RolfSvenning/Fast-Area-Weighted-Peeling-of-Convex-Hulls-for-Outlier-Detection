@@ -53,8 +53,9 @@ The repository currently starts with the `V1` brute-force oracle baseline. This 
 
 - `visualize/`
   Visualization tooling for rendering a fixed `V1` testcase as a GIF plus an HTML step-through viewer. A checked-in example bundle lives under `visualize/example/`.
-  Example GIF: [`visualize/example/case_0999/case_0999_v1.gif`](visualize/example/case_0999/case_0999_v1.gif)
   Example viewer: [`visualize/example/case_0999/viewer.html`](visualize/example/case_0999/viewer.html)
+
+  ![Example convex hull peeling GIF](visualize/example/case_0999/case_0999_v1.gif)
 
 - `main.py`
   Thin command-line entrypoint used by the verification script to run a requested implementation version against a directory of test cases.
