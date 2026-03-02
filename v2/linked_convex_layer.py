@@ -16,17 +16,15 @@ from algorithms_and_data_structures.convex_layers import (
 )
 
 
-def _same_points(first: Sequence[Point], second: Sequence[Point]) -> bool:
-    if len(first) != len(second):
-        return False
-    return all(points_equal(a, b, ORIENTATION_EPSILON) for a, b in zip(first, second))
-
-
 def _find_point_index(points: Sequence[Point], target: Point) -> int:
     for index, point in enumerate(points):
         if points_equal(point, target, ORIENTATION_EPSILON):
             return index
     raise ValueError(f"Point {target} was not found.")
+
+
+def _contains_point(points: Sequence[Point], target: Point) -> bool:
+    return any(points_equal(point, target, ORIENTATION_EPSILON) for point in points)
 
 
 @dataclass
@@ -81,9 +79,6 @@ class LinkedLayer:
     def to_list(self) -> List[Point]:
         return [node.point for node in self.iter_nodes()]
 
-    def clone(self) -> "LinkedLayer":
-        return LinkedLayer.from_points(self.to_list())
-
     def remove_node(self, node: LayerNode) -> None:
         if self.size == 0 or self.head is None:
             raise ValueError("Cannot remove a node from an empty layer.")
@@ -100,6 +95,42 @@ class LinkedLayer:
         if self.head is node:
             self.head = node.next
         self.size -= 1
+        node.prev = None
+        node.next = None
+
+    def insert_linear_chain_between(
+        self,
+        left: LayerNode,
+        right: LayerNode,
+        chain_nodes: Sequence[LayerNode],
+    ) -> None:
+        if not chain_nodes:
+            return
+
+        first = chain_nodes[0]
+        last = chain_nodes[-1]
+
+        if self.size == 0:
+            first.prev = last
+            last.next = first
+            for index in range(1, len(chain_nodes)):
+                chain_nodes[index - 1].next = chain_nodes[index]
+                chain_nodes[index].prev = chain_nodes[index - 1]
+            self.head = first
+            self.size = len(chain_nodes)
+            return
+
+        left.next = first
+        first.prev = left
+        last.next = right
+        right.prev = last
+        self.size += len(chain_nodes)
+
+    def find_node(self, target: Point) -> LayerNode:
+        for node in self.iter_nodes():
+            if points_equal(node.point, target, ORIENTATION_EPSILON):
+                return node
+        raise ValueError(f"Point {target} was not present in the layer.")
 
 
 @dataclass
@@ -139,7 +170,7 @@ class LinkedConvexLayer:
     def outer_layer(self) -> List[Point]:
         if not self.layers:
             return []
-        return self.layers[0].to_list()
+        return canonicalize_layer(self.layers[0].to_list())
 
     def tangent_points(self, point: Point, layer_index: int) -> Tuple[Point, Point]:
         layer_points = self.layers[layer_index].to_list()
@@ -149,28 +180,104 @@ class LinkedConvexLayer:
         right_tangent = combined_hull[(point_index + 1) % len(combined_hull)]
         return left_tangent, right_tangent
 
+    def _desired_upper_for_pair(self, layer_index: int) -> List[Point]:
+        upper_layer = self.layers[layer_index].to_list()
+        lower_layer = self.layers[layer_index + 1].to_list()
+        merged_points = upper_layer + lower_layer
+
+        if len(merged_points) >= 3:
+            return canonicalize_layer(self.convex_hull_algorithm(merged_points))
+        return canonicalize_layer(merged_points)
+
+    def _promoted_chain_for_pair(
+        self,
+        layer_index: int,
+    ) -> Tuple[List[Point], Point | None, Point | None]:
+        desired_upper = self._desired_upper_for_pair(layer_index)
+        lower_layer = self.layers[layer_index + 1].to_list()
+        lower_flags = [_contains_point(lower_layer, point) for point in desired_upper]
+
+        if not any(lower_flags):
+            return [], None, None
+
+        block_starts = [
+            index
+            for index, flag in enumerate(lower_flags)
+            if flag and not lower_flags[(index - 1) % len(lower_flags)]
+        ]
+        if len(block_starts) != 1:
+            raise ValueError("Expected exactly one promoted chain while restoring adjacent layers.")
+
+        start = block_starts[0]
+        promoted_points: List[Point] = []
+        cursor = start
+        while lower_flags[cursor]:
+            promoted_points.append(desired_upper[cursor])
+            cursor = (cursor + 1) % len(desired_upper)
+
+        left_boundary = desired_upper[(start - 1) % len(desired_upper)]
+        right_boundary = desired_upper[cursor]
+        return promoted_points, left_boundary, right_boundary
+
+    def _extract_promoted_nodes(
+        self,
+        lower_layer: LinkedLayer,
+        promoted_points: Sequence[Point],
+    ) -> List[LayerNode]:
+        nodes = [lower_layer.find_node(point) for point in promoted_points]
+        for node in nodes:
+            lower_layer.remove_node(node)
+
+        for index, node in enumerate(nodes):
+            node.prev = nodes[index - 1] if index > 0 else None
+            node.next = nodes[index + 1] if index + 1 < len(nodes) else None
+
+        return nodes
+
+    def _promote_chain_into_upper(
+        self,
+        layer_index: int,
+        promoted_points: Sequence[Point],
+        left_boundary: Point,
+        right_boundary: Point,
+    ) -> bool:
+        if not promoted_points:
+            return False
+
+        upper_layer = self.layers[layer_index]
+        lower_layer = self.layers[layer_index + 1]
+        left_node = upper_layer.find_node(left_boundary)
+        right_node = upper_layer.find_node(right_boundary)
+        promoted_nodes = self._extract_promoted_nodes(lower_layer, promoted_points)
+
+        upper_layer.insert_linear_chain_between(left_node, right_node, promoted_nodes)
+        return True
+
+    def _restore_pair_by_splicing(self, layer_index: int) -> bool:
+        promoted_points, left_boundary, right_boundary = self._promoted_chain_for_pair(layer_index)
+        if not promoted_points or left_boundary is None or right_boundary is None:
+            return False
+
+        self._promote_chain_into_upper(
+            layer_index,
+            promoted_points,
+            left_boundary,
+            right_boundary,
+        )
+
+        if len(self.layers[layer_index + 1]) == 0:
+            del self.layers[layer_index + 1]
+
+        return True
+
     def _restore_layers_from(self, start_index: int) -> None:
         layer_index = max(0, start_index)
         while layer_index < len(self.layers) - 1:
-            upper_layer = self.layers[layer_index].to_list()
-            lower_layer = self.layers[layer_index + 1].to_list()
-            merged_points = upper_layer + lower_layer
-
-            if len(merged_points) >= 3:
-                new_upper_layer = canonicalize_layer(self.convex_hull_algorithm(merged_points))
-            else:
-                new_upper_layer = canonicalize_layer(merged_points)
-
-            new_lower_layer = canonicalize_layer(remove_points(merged_points, new_upper_layer))
-
-            if _same_points(new_upper_layer, upper_layer) and _same_points(new_lower_layer, lower_layer):
+            changed = self._restore_pair_by_splicing(layer_index)
+            if not changed:
                 break
 
-            self.layers[layer_index] = LinkedLayer.from_points(new_upper_layer)
-            if new_lower_layer:
-                self.layers[layer_index + 1] = LinkedLayer.from_points(new_lower_layer)
-            else:
-                del self.layers[layer_index + 1]
+            if layer_index + 1 >= len(self.layers):
                 break
 
             layer_index += 1
@@ -187,23 +294,8 @@ class LinkedConvexLayer:
         if len(self.layers[affected_layer_index]) == 0:
             del self.layers[affected_layer_index]
             affected_layer_index = max(0, affected_layer_index - 1)
-        else:
-            self.layers[affected_layer_index] = LinkedLayer.from_points(
-                self.layers[affected_layer_index].to_list()
-            )
 
         if self.layers:
             self._restore_layers_from(affected_layer_index)
 
         self._rebuild_point_index()
-
-    def clone_without_point(self, target: Point) -> "LinkedConvexLayer":
-        clone = LinkedConvexLayer(
-            active_points=list(self.active_points),
-            layers=[layer.clone() for layer in self.layers],
-            convex_hull_algorithm=self.convex_hull_algorithm,
-            point_index={},
-        )
-        clone._rebuild_point_index()
-        clone.remove_point(target)
-        return clone
