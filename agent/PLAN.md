@@ -94,17 +94,33 @@ The master branch progresses through the following architectural stages.
 ### `V2: Layered`
 
 - Strategy: maintain convex layers
-- Restore the hull after each peel using next-layer tangent / max queries
+- Representation: circular doubly linked lists for each convex layer
+- Point deletion on a layer in `O(1)` time once the node is known
+- Tangent and active-chain queries may run in linear time
+- Sensitivity calculations may run in linear time from `L_1` and `L_2`
+- Restore the hull after each peel by moving contiguous promoted chains upward
+- Role: correctness-complete layered baseline with local linked-list repair
 - Dependency: `ConvexLayerManager`
 
 ### `V3: Efficient`
 
 - Strategy: keep the layered approach, but upgrade tangent handling to logarithmic-time queries
+- Representation: leaf-linked balanced trees for each maintained layer
+- Tangent queries in logarithmic time
+- Sensitivities in logarithmic time by using the tree representation and storing
+  partial shoelace sums in the maintained structure
+- Chain movement is no longer plain linked-list splicing; updates require tree
+  split / join or equivalent balanced-tree restructuring
+- Role: asymptotically efficient layered version before introducing a dynamic
+  hull engine
 - Dependency: `HullTreeStructure`
 
 ### `V4: Dynamic`
 
-- Strategy: deletion-only dynamic convex hull with `O(log^2 n)` update time or better
+- Strategy: maintain the two outer layers explicitly and the deeper interior in a
+  deletion-only dynamic convex hull structure
+- Restore `L_2` using extreme-point or tangent queries into the dynamic hull
+- Target: deletion-only dynamic convex hull with `O(log^2 n)` update time or better
 - Dependency: `DynamicHullEngine`
 
 ## Required Development Protocol
