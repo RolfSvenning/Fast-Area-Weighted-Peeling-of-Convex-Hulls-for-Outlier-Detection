@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>case_0999 Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0%, #020617 72%);
+      color: #e5e7eb;
+    }
+    .shell {
+      max-width: 980px;
+      margin: 32px auto;
+      padding: 24px;
+    }
+    .panel {
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid #334155;
+      border-radius: 18px;
+      box-shadow: 0 14px 40px rgba(2, 6, 23, 0.45);
+      overflow: hidden;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid #334155;
+      background: rgba(15, 23, 42, 0.98);
+    }
+    button {
+      border: 0;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #020617;
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #38bdf8;
+      color: white;
+    }
+    button.ghost {
+      background: #334155;
+      color: #e5e7eb;
+    }
+    .status {
+      margin-left: auto;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+    .canvas {
+      padding: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #020617;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(2, 6, 23, 0.55);
+      background: white;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+    }
+    p {
+      margin: 0 0 18px;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <h1>case_0999</h1>
+    <p>Switch between the animated GIF and manual step-through frames.</p>
+    <div class="panel">
+      <div class="toolbar">
+        <button id="gifMode">GIF</button>
+        <button id="manualMode" class="secondary">Manual</button>
+        <button id="prev" class="ghost">Prev</button>
+        <button id="next" class="ghost">Next</button>
+        <button id="playPause" class="ghost">Play</button>
+        <div class="status" id="status"></div>
+      </div>
+      <div class="canvas">
+        <img id="viewer" src="frames/frame_000.png" alt="case_0999 visualization" />
+      </div>
+    </div>
+  </div>
+  <script>
+    const gifName = 'case_0999_v1.gif';
+    const frames = ['frames/frame_000.png', 'frames/frame_001.png', 'frames/frame_002.png', 'frames/frame_003.png', 'frames/frame_004.png', 'frames/frame_005.png', 'frames/frame_006.png', 'frames/frame_007.png', 'frames/frame_008.png', 'frames/frame_009.png', 'frames/frame_010.png', 'frames/frame_011.png', 'frames/frame_012.png', 'frames/frame_013.png', 'frames/frame_014.png', 'frames/frame_015.png', 'frames/frame_016.png', 'frames/frame_017.png', 'frames/frame_018.png', 'frames/frame_019.png', 'frames/frame_020.png', 'frames/frame_021.png', 'frames/frame_022.png', 'frames/frame_023.png', 'frames/frame_024.png', 'frames/frame_025.png', 'frames/frame_026.png', 'frames/frame_027.png', 'frames/frame_028.png', 'frames/frame_029.png', 'frames/frame_030.png', 'frames/frame_031.png', 'frames/frame_032.png', 'frames/frame_033.png', 'frames/frame_034.png', 'frames/frame_035.png', 'frames/frame_036.png', 'frames/frame_037.png', 'frames/frame_038.png', 'frames/frame_039.png', 'frames/frame_040.png', 'frames/frame_041.png', 'frames/frame_042.png', 'frames/frame_043.png', 'frames/frame_044.png', 'frames/frame_045.png', 'frames/frame_046.png', 'frames/frame_047.png', 'frames/frame_048.png', 'frames/frame_049.png', 'frames/frame_050.png', 'frames/frame_051.png', 'frames/frame_052.png', 'frames/frame_053.png', 'frames/frame_054.png', 'frames/frame_055.png', 'frames/frame_056.png', 'frames/frame_057.png', 'frames/frame_058.png', 'frames/frame_059.png', 'frames/frame_060.png', 'frames/frame_061.png', 'frames/frame_062.png', 'frames/frame_063.png', 'frames/frame_064.png', 'frames/frame_065.png', 'frames/frame_066.png', 'frames/frame_067.png', 'frames/frame_068.png', 'frames/frame_069.png', 'frames/frame_070.png', 'frames/frame_071.png', 'frames/frame_072.png', 'frames/frame_073.png', 'frames/frame_074.png', 'frames/frame_075.png', 'frames/frame_076.png', 'frames/frame_077.png', 'frames/frame_078.png', 'frames/frame_079.png', 'frames/frame_080.png', 'frames/frame_081.png', 'frames/frame_082.png', 'frames/frame_083.png', 'frames/frame_084.png', 'frames/frame_085.png', 'frames/frame_086.png', 'frames/frame_087.png', 'frames/frame_088.png', 'frames/frame_089.png', 'frames/frame_090.png', 'frames/frame_091.png', 'frames/frame_092.png', 'frames/frame_093.png', 'frames/frame_094.png', 'frames/frame_095.png', 'frames/frame_096.png', 'frames/frame_097.png', 'frames/frame_098.png'];
+    const delayMs = 500;
+    const viewer = document.getElementById("viewer");
+    const status = document.getElementById("status");
+    const playPause = document.getElementById("playPause");
+    let manual = true;
+    let index = 0;
+    let timer = null;
+
+    function render() {
+      if (manual) {
+        viewer.src = frames[index];
+        status.textContent = `Frame ${index + 1} / ${frames.length}`;
+      } else {
+        viewer.src = gifName;
+        status.textContent = "GIF mode";
+      }
+    }
+
+    function stopTimer() {
+      if (timer !== null) {
+        clearInterval(timer);
+        timer = null;
+      }
+      playPause.textContent = "Play";
+    }
+
+    document.getElementById("gifMode").addEventListener("click", () => {
+      manual = false;
+      stopTimer();
+      render();
+    });
+
+    document.getElementById("manualMode").addEventListener("click", () => {
+      manual = true;
+      render();
+    });
+
+    document.getElementById("prev").addEventListener("click", () => {
+      manual = true;
+      stopTimer();
+      index = (index - 1 + frames.length) % frames.length;
+      render();
+    });
+
+    document.getElementById("next").addEventListener("click", () => {
+      manual = true;
+      stopTimer();
+      index = (index + 1) % frames.length;
+      render();
+    });
+
+    playPause.addEventListener("click", () => {
+      manual = true;
+      if (timer !== null) {
+        stopTimer();
+        render();
+        return;
+      }
+      timer = setInterval(() => {
+        index = (index + 1) % frames.length;
+        render();
+      }, delayMs);
+      playPause.textContent = "Pause";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

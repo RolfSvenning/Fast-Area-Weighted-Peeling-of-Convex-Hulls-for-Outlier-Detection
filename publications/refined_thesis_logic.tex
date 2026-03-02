@@ -1,0 +1,61 @@
+\section*{Refined Thesis Logic for Fast Area-Weighted Convex Hull Peeling}
+
+\subsection*{Problem framing}
+Let $P$ be a set of $n$ points in the plane. The area-weighted peeling process repeatedly removes the hull point whose deletion gives the largest decrease in convex hull area. For a point $p \in P$, define its sensitivity as
+\[
+\sigma(p) = \mathrm{area}(\mathrm{CH}(P)) - \mathrm{area}(\mathrm{CH}(P \setminus \{p\})).
+\]
+Only points on the current convex hull can have positive sensitivity, so each peeling step selects
+\[
+\operatorname*{argmax}_{p \in \mathrm{CH}(P)} \sigma(p).
+\]
+The process is a greedy heuristic for area-based outlier detection: the first $k$ peeled points are interpreted as the $k$ most extreme outliers.
+
+\subsection*{Relation to exact $k$-removal}
+The natural exact optimization problem asks for a set $S$ of $k$ points minimizing the area of $\mathrm{CH}(P \setminus S)$. This exact objective is combinatorial and significantly more expensive than repeated greedy $1$-peels. The weighted peeling algorithm therefore occupies a practical middle ground:
+\begin{itemize}
+    \item it uses the same geometric objective as the exact problem,
+    \item it preserves the interpretation of outliers as points that strongly determine hull area,
+    \item and it avoids the high running time of exact $k$-removal algorithms.
+\end{itemize}
+The tradeoff is that greedy peeling can differ from the optimal joint $k$-removal when nearby outliers mask one another.
+
+\subsection*{Core structural observation}
+For a hull point $u$, the change in hull area after deleting $u$ depends only on local hull structure and on the points that would become exposed after removing $u$. These points are the active points of $u$. The crucial structural fact behind the fast algorithm is that although a single peel may trigger many local changes, the total number of times points become newly active over the full process is linear.
+
+\subsection*{Algorithmic decomposition}
+The fast algorithm can be understood as maintaining three coupled structures:
+\begin{enumerate}
+    \item the outer convex layer $L_1$,
+    \item the second convex layer $L_2$,
+    \item and the remaining interior points in a dynamic hull structure.
+\end{enumerate}
+At each peel:
+\begin{enumerate}
+    \item choose the point of maximum sensitivity from $L_1$,
+    \item remove it,
+    \item restore $L_1$ and $L_2$ using tangent and extreme-point queries,
+    \item update the sensitivities of the affected neighboring hull points.
+\end{enumerate}
+The purpose of separating $L_1$, $L_2$, and the deeper interior is that sensitivities only depend on the outer two layers, while the deeper points are only needed when restoring those layers after deletions.
+
+\subsection*{Why the running time is near-linear}
+The challenge is not recomputing one convex hull, but maintaining the entire peeling process efficiently. The proof strategy is amortized:
+\begin{itemize}
+    \item hull restoration is charged to points that move outward through convex layers,
+    \item sensitivity updates are charged to newly activated points,
+    \item and the total number of such activations is $O(n)$.
+\end{itemize}
+This yields an overall running time of $O(n \log n)$ with $O(n)$ space for the full peeling order.
+
+\subsection*{Implementation takeaway}
+For an implementation roadmap, the thesis logic naturally separates into:
+\begin{itemize}
+    \item a geometric kernel for predicates and polygon area,
+    \item a verifiable brute-force oracle,
+    \item a layered hull maintenance strategy,
+    \item tangent-query support,
+    \item and finally a dynamic deletion-only hull engine.
+\end{itemize}
+This progression mirrors the practical development path from a correctness-first oracle to the intended high-performance implementation.
+
